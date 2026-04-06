@@ -1,0 +1,71 @@
+================================================================
+        公文序號改名工具  ─  安裝與使用說明
+================================================================
+
+【第一步：安裝 Python】
+1. 開啟瀏覽器，前往 https://www.python.org/downloads/
+2. 點「Download Python 3.x.x」下載安裝檔
+3. 執行安裝時，務必勾選「Add python.exe to PATH」
+4. 按 Install Now 完成安裝
+
+【第二步：安裝 Tesseract OCR（文字辨識引擎）】
+1. 下載連結：
+   https://github.com/UB-Mannheim/tesseract/wiki
+   → 找到 Windows installer，下載 tesseract-ocr-w64-setup-xx.exe
+2. 執行安裝，安裝路徑保持預設（C:\Program Files\Tesseract-OCR）
+3. 安裝時在「Additional language data」勾選「Chinese Traditional」
+
+【第三步：安裝 Python 套件】
+1. 按 Windows 鍵，搜尋「命令提示字元」，點右鍵「以系統管理員身分執行」
+2. 輸入以下指令（直接複製貼上），按 Enter：
+
+   pip install pymupdf pytesseract Pillow
+
+3. 等待安裝完成（出現 Successfully installed 表示成功）
+
+【第四步：執行程式】
+方法A（最簡單）：
+   直接雙擊「執行程式.bat」即可啟動
+
+方法B：
+   在命令提示字元輸入：
+   cd C:\Users\muenh\pdf_renamer
+   python pdf_renamer.py
+
+================================================================
+【使用方式】
+
+1. 點「選擇資料夾」→ 選取存放掃描PDF的資料夾
+   （或點「選擇PDF檔案」選擇個別檔案）
+
+2. 點「開始辨識」→ 程式自動辨識每個PDF右下角的序號章
+
+3. 檢查結果：
+   · 綠色 = 辨識成功
+   · 紅色 = 未辨識（雙擊「辨識序號」欄位可手動輸入）
+
+4. 點「確認改名」→ 完成批次改名
+
+================================================================
+【注意事項】
+
+· 序號格式必須是9位數字（例如 202604001）
+· 改名前請先備份重要檔案
+· 若有同名檔案，程式會自動跳過，不會覆蓋
+· 如果辨識率不佳，可能是掃描品質問題，建議用雙面掃描器
+  並確保章的印章清晰
+
+================================================================
+【問題排除】
+
+Q: 出現「No module named 'fitz'」
+A: 重新執行：pip install pymupdf
+
+Q: 出現「tesseract is not installed」
+A: 確認 Tesseract 安裝在 C:\Program Files\Tesseract-OCR\
+   或修改 pdf_renamer.py 第18行的路徑
+
+Q: 辨識率很低
+A: 確認掃描的PDF清晰度足夠，章的數字要印得清楚
+
+================================================================
