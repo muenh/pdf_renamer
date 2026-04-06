@@ -2,35 +2,16 @@
         公文序號改名工具  ─  安裝與使用說明
 ================================================================
 
-【第一步：安裝 Python】
-1. 開啟瀏覽器，前往 https://www.python.org/downloads/
-2. 點「Download Python 3.x.x」下載安裝檔
-3. 執行安裝時，務必勾選「Add python.exe to PATH」
-4. 按 Install Now 完成安裝
-
-【第二步：安裝 Tesseract OCR（文字辨識引擎）】
+【第一步：安裝 Tesseract OCR（文字辨識引擎）】
 1. 下載連結：
    https://github.com/UB-Mannheim/tesseract/wiki
    → 找到 Windows installer，下載 tesseract-ocr-w64-setup-xx.exe
 2. 執行安裝，安裝路徑保持預設（C:\Program Files\Tesseract-OCR）
 3. 安裝時在「Additional language data」勾選「Chinese Traditional」
 
-【第三步：安裝 Python 套件】
-1. 按 Windows 鍵，搜尋「命令提示字元」，點右鍵「以系統管理員身分執行」
-2. 輸入以下指令（直接複製貼上），按 Enter：
-
-   pip install pymupdf pytesseract Pillow
-
-3. 等待安裝完成（出現 Successfully installed 表示成功）
-
-【第四步：執行程式】
-方法A（最簡單）：
-   直接雙擊「執行程式.bat」即可啟動
-
-方法B：
-   在命令提示字元輸入：
-   cd C:\Users\muenh\pdf_renamer
-   python pdf_renamer.py
+【第二步：執行程式】
+   直接雙擊「公文序號改名工具.exe」即可啟動
+   （不需要安裝 Python 或任何其他套件）
 
 ================================================================
 【使用方式】
@@ -58,12 +39,8 @@
 ================================================================
 【問題排除】
 
-Q: 出現「No module named 'fitz'」
-A: 重新執行：pip install pymupdf
-
 Q: 出現「tesseract is not installed」
 A: 確認 Tesseract 安裝在 C:\Program Files\Tesseract-OCR\
-   或修改 pdf_renamer.py 第18行的路徑
 
 Q: 辨識率很低
 A: 確認掃描的PDF清晰度足夠，章的數字要印得清楚
