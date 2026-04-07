@@ -17,7 +17,16 @@ except ImportError:
 try:
     from PIL import Image, ImageEnhance, ImageFilter, ImageOps
     import pytesseract
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    _TESSERACT_CANDIDATES = [
+        r'C:\Program Files\Tesseract-OCR\tesseract.exe',
+        r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe',
+        os.path.join(os.path.expanduser("~"),
+                     r'AppData\Local\Programs\Tesseract-OCR\tesseract.exe'),
+    ]
+    for _path in _TESSERACT_CANDIDATES:
+        if os.path.isfile(_path):
+            pytesseract.pytesseract.tesseract_cmd = _path
+            break
     OCR_AVAILABLE = True
 except ImportError:
     OCR_AVAILABLE = False
@@ -215,31 +224,55 @@ class PDFRenamer:
             doc.close()
 
             img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-            img = img.convert("L")                        # 灰階
+
+            # 除錯：儲存擷取區域到桌面 ocr_debug 資料夾
+            desktop = os.path.join(os.path.expanduser("~"), "Desktop")
+            debug_dir = os.path.join(desktop, "ocr_debug")
+            os.makedirs(debug_dir, exist_ok=True)
+            base = os.path.splitext(os.path.basename(filepath))[0]
+            img.save(os.path.join(debug_dir, f"{base}_1_original.png"))
+
+            # 強化有色印章：取 R、G、B 各通道最小值，有色墨水（紅/藍）會變深
+            from PIL import ImageChops
+            r, g, b = img.split()
+            img = ImageChops.darker(ImageChops.darker(r, g), b)
+
             img = ImageOps.autocontrast(img, cutoff=2)    # 自動對比
             enhancer = ImageEnhance.Sharpness(img)
-            img = enhancer.enhance(2.5)
+            img = enhancer.enhance(2.0)
 
-            # 二值化
-            img = img.point(lambda x: 0 if x < 150 else 255, "1")
+            # 除錯：儲存處理後影像
+            img.save(os.path.join(debug_dir, f"{base}_2_processed.png"))
 
-            cfg = "--psm 6 -c tessedit_char_whitelist=0123456789"
+            cfg = "--psm 6 -l chi_tra+eng"
             text = pytesseract.image_to_string(img, config=cfg)
             clean = re.sub(r"\D", "", text)
 
-            # 找9位數序號（格式 YYYYMM + 3位流水號）
-            matches = re.findall(r"20\d{7}", clean)
+            # 除錯：儲存 OCR 原始輸出
+            with open(os.path.join(debug_dir, f"{base}_3_ocr_text.txt"), "w", encoding="utf-8") as f:
+                f.write(f"raw:\n{repr(text)}\nclean:\n{clean}\n")
+
+            # 在原始文字中找獨立的9位數（避免跨數字合併造成誤判）
+            matches = re.findall(r"20\d{7}", text)
             if matches:
                 return matches[0]
 
-            # 寬鬆匹配：任意9位數
-            matches = re.findall(r"\d{9}", clean)
+            matches = re.findall(r"\d{9}", text)
             if matches:
                 return matches[0]
 
             return None
         except Exception as e:
             print(f"[錯誤] {filepath}: {e}")
+            try:
+                desktop = os.path.join(os.path.expanduser("~"), "Desktop")
+                debug_dir = os.path.join(desktop, "ocr_debug")
+                os.makedirs(debug_dir, exist_ok=True)
+                base = os.path.splitext(os.path.basename(filepath))[0]
+                with open(os.path.join(debug_dir, f"{base}_error.txt"), "w", encoding="utf-8") as f:
+                    f.write(str(e))
+            except Exception:
+                pass
             return None
 
     # ──────────────────────────────────────────
